@@ -1,5 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
+import '../models/task_model.dart';
 import 'api_service.dart';
 
 class AuthService {
@@ -57,6 +58,26 @@ class AuthService {
       return User(name: name, email: email, npm: npm);
     }
     return null;
+  }
+
+  // Mengambil semua tugas
+  static Future<List<Task>> getTasks() async {
+    final data = await ApiService.get("tasks");
+    List<dynamic> list = data;
+    return list.map((e) => Task.fromJson(e)).toList();
+  }
+
+  // Menambah tugas baru
+  static Future addTask(String title, String description) async {
+    return await ApiService.post("tasks", {
+      "title": title,
+      "description": description,
+    });
+  }
+
+  // Menghapus tugas
+  static Future deleteTask(int id) async {
+    return await ApiService.delete("tasks/$id");
   }
 
   // Fungsi Logout

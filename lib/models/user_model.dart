@@ -4,12 +4,11 @@ class User {
   final String npm;
 
   User({required this.name, required this.email, required this.npm});
-
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      name: json['name'],
-      email: json['email'],
-      npm: json['npm'] ?? '', // Mengambil data NPM dari API
-    );
-  }
+factory User.fromJson(Map<String, dynamic> json) {
+  return User(
+    name: json['name'],
+    email: json['email'],
+    npm: json['npm'] ?? '', // Mapping data NPM dari JSON
+  );
+}
 }

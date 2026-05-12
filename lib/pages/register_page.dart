@@ -7,64 +7,152 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  final name = TextEditingController();
-  final email = TextEditingController();
-  final password = TextEditingController();
-  final npm = TextEditingController(); // Controller NPM[cite: 1]
+  final nameController = TextEditingController();
+  final npmController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  bool isLoading = false;
 
   void register() async {
-    // Validasi sederhana: Semua field wajib diisi[cite: 1]
-    if (name.text.isEmpty ||
-        email.text.isEmpty ||
-        password.text.isEmpty ||
-        npm.text.isEmpty) {
+    // 1. Validasi Input Kosong
+    if (nameController.text.isEmpty ||
+        npmController.text.isEmpty ||
+        emailController.text.isEmpty ||
+        passwordController.text.isEmpty) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Semua field wajib diisi!")));
       return;
     }
 
-    bool success = await AuthService.register(
-      name.text,
-      email.text,
-      password.text,
-      npm.text,
-    );
-    if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Register Berhasil! Silakan Login.")),
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      // 2. Jalankan fungsi register dari AuthService
+      bool success = await AuthService.register(
+        nameController.text,
+        emailController.text,
+        passwordController.text,
+        npmController.text,
       );
-      Navigator.pop(context); // Kembali ke halaman login
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Register Berhasil! Silakan Login."),
+            backgroundColor: Colors.green,
+          ),
+        );
+        // Kembali ke halaman login setelah sukses
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Register Gagal. Email mungkin sudah terdaftar."),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Terjadi kesalahan koneksi."),
+          backgroundColor: Colors.orange,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Register User")),
-      body: Padding(
+      appBar: AppBar(title: Text("Daftar Akun Baru"), centerTitle: true),
+      body: SingleChildScrollView(
+        // Agar tidak error overflow saat keyboard muncul
         padding: EdgeInsets.all(16.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextField(
-              controller: name,
-              decoration: InputDecoration(labelText: "Nama Lengkap"),
+            SizedBox(height: 20),
+            Text(
+              "Buat Akun Mahasiswa",
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
+            SizedBox(height: 30),
+
+            // Input Nama
             TextField(
-              controller: npm,
-              decoration: InputDecoration(labelText: "NPM"),
-            ), // Field NPM[cite: 1]
-            TextField(
-              controller: email,
-              decoration: InputDecoration(labelText: "Email"),
+              controller: nameController,
+              decoration: InputDecoration(
+                labelText: "Nama Lengkap",
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.person),
+              ),
             ),
+            SizedBox(height: 15),
+
+            // Input NPM
             TextField(
-              controller: password,
-              decoration: InputDecoration(labelText: "Password"),
+              controller: npmController,
+              decoration: InputDecoration(
+                labelText: "NPM",
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.assignment_ind),
+              ),
+              keyboardType: TextInputType.number,
+            ),
+            SizedBox(height: 15),
+
+            // Input Email
+            TextField(
+              controller: emailController,
+              decoration: InputDecoration(
+                labelText: "Email",
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.email),
+              ),
+              keyboardType: TextInputType.emailAddress,
+            ),
+            SizedBox(height: 15),
+
+            // Input Password
+            TextField(
+              controller: passwordController,
+              decoration: InputDecoration(
+                labelText: "Password",
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.lock),
+              ),
               obscureText: true,
             ),
-            SizedBox(height: 20),
-            ElevatedButton(onPressed: register, child: Text("Daftar Sekarang")),
+            SizedBox(height: 25),
+
+            // Tombol Register / Loading
+            isLoading
+                ? CircularProgressIndicator()
+                : ElevatedButton(
+                    onPressed: register,
+                    child: Text("DAFTAR SEKARANG"),
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size(double.infinity, 50),
+                      backgroundColor: Colors.blueAccent,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+
+            SizedBox(height: 15),
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Sudah punya akun? Login di sini"),
+            ),
           ],
         ),
       ),

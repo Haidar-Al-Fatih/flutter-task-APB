@@ -15,7 +15,7 @@ class ApiService {
   static Future post(String endpoint, Map data) async {
     final response = await http.post(
       Uri.parse("$baseUrl/$endpoint"),
-      headers: {"Accept": "application/json"},
+      headers: await headers(),
       body: data,
     );
     return jsonDecode(response.body);
@@ -23,6 +23,25 @@ class ApiService {
 
   static Future get(String endpoint) async {
     final response = await http.get(
+      Uri.parse("$baseUrl/$endpoint"),
+      headers: await headers(),
+    );
+    return jsonDecode(response.body);
+  }
+
+  // Method untuk Update (PUT)
+  static Future put(String endpoint, Map data) async {
+    final response = await http.put(
+      Uri.parse("$baseUrl/$endpoint"),
+      headers: await headers(), // Mengambil Bearer Token otomatis
+      body: data,
+    );
+    return jsonDecode(response.body);
+  }
+
+  // Method untuk Delete (DELETE)
+  static Future delete(String endpoint) async {
+    final response = await http.delete(
       Uri.parse("$baseUrl/$endpoint"),
       headers: await headers(),
     );
